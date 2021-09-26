@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    /* here we linked the css file and the js file so it can reload with the html page */
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe Game</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nerko+One&display=swap" rel="stylesheet">
+    <style>
+    /*here we have put custum properties with their colors to declare the root in the css code */
+        :root {
+  --text: #dbdfac;
+  --bg: #2a1e5c;
+  --btn-bg: #d7f171;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+/* here we used a google font Nerko one and the custom properties for the colors */
+body {
+  color: var(--text);
+  background-color: var(--bg);
+  font-family: 'Nerko One', cursive;
+}
+
+h1 {
+  font-size: 80px;
+  margin-bottom: 0;
+  text-transform: uppercase;
+}
+/* the container section holds the text, buttons and div of our work */
+.container {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+/* here the board consists of all the boxes inside it  Our strategy here to position only three boxes in a row is to give the board ID a width. Whenever the boxes reach the width, it’ll wrap the next boxes in a new line. The width of the board will be divided by three to get the width required by each box.*/
+#board {
+  width: 60vw;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 100px;
+  margin-top: 40px;
+}
+/* we have to divide the total width of the board by three. So, dividing 60 by 3 will give us 20. This 20 will be the height and width of each box of our board. We are also specifying the height because otherwise, it'll look odd */
+.box {
+  height: 20vh;
+  width: 20vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--text);
+}
+
+#restart {
+  padding: 10px 20px;
+  background-color: var(--btn-bg);
+  border: none;
+  border-radius: 20px;
+  color: var(--bg);
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 id="heading">Play</h1>
+        <h2 id="strategy"></h2>
+        <button id="restart">Restart</button>
+        <div id="board">
+            <div class="box" id="0"></div>
+            <div class="box" id="1"></div>
+            <div class="box" id="2"></div>
+            <div class="box" id="3"></div>
+            <div class="box" id="4"></div>
+            <div class="box" id="5"></div>
+            <div class="box" id="6"></div>
+            <div class="box" id="7"></div>
+            <div class="box" id="8"></div>
+        </div>
+    </div>
+<script>
+/* here we started by writing our JavaScript file  to access the DOM elements in JavaScript */
+    const boxes = document.querySelectorAll('.box');
+const text = document.querySelector('#heading');
+const strategy = document.querySelector('#strategy');
+const restartBtn = document.querySelector('#restart');
+/* We are defining o and x inside two separate variables. And a variable called currentPlayer that sets the currentPlayer to O at the start of a game */
+const spaces = [];
+const tick_circle = 'O';
+const tick_x = 'X';
+let currentPlayer = tick_circle;
+/*here we added a bottom border to the elements whose indexes are less than 3. A right border will be added to those elements which are completely divisible by 3(index position 3, 6). The function will add a left border to those elements which give a modulus of 2(index position 2, 5, 8) and a top border will be added to all the elements that have an index position greater than 5 */ 
+const drawBoard = () => {
+  boxes.forEach((box, i) => {
+    let styleString = '';
+    if (i < 3) {
+      styleString += 'border-bottom: 3px solid var(--text);';
+    }
+    if (i % 3 === 0) {
+      styleString += 'border-right: 3px solid var(--text);';
+    }
+    if (i % 3 === 2) {
+      styleString += 'border-left: 3px solid var(--text);';
+    }
+    if (i > 5) {
+      styleString += 'border-top: 3px solid var(--text);';
+    }
+    box.style = styleString;
+    box.addEventListener('click', boxClicked);
+  });
+};
+/*After finding that the position is empty, we assign the currentPlayer value to space. And then, inside the box, we assign the currentPlayer icon which can be "X" or "O". Once this condition is done, we check for another. This time we pass a function called playerWon inside the if statement, if the function returns true then we change the heading innerText depending on which player has won.*/
+const boxClicked = (e) => {
+  const id = e.target.id;
+  console.log(e);
+  if (!spaces[id]) {
+    console.log(spaces[id]);
+    spaces[id] = currentPlayer;
+    e.target.innerText = currentPlayer;
+
+    if (playerWon()) {
+      text.innerText = `${currentPlayer} has won!`;
+      restart();
+      return;
+    }
+
+    if (playerDraw()) {
+      return;
+    }
+    currentPlayer = currentPlayer === tick_circle ? tick_x : tick_circle;
+  }
+};
+
+const playerWon = () => {
+  if (spaces[0] === currentPlayer) {
+    if (spaces[1] === currentPlayer && spaces[2] === currentPlayer) {
+      strategy.innerText = `${currentPlayer} wins up to top`;
+      return true;
+    }
+    if (spaces[3] === currentPlayer && spaces[6] === currentPlayer) {
+      strategy.innerText = `${currentPlayer} wins on the left`;
+      return true;
+    }
+    if (spaces[4] === currentPlayer && spaces[8] === currentPlayer) {
+      strategy.innerText = `${currentPlayer} wins diagonally`;
+      return true;
+    }
+  }
+  if (spaces[8] === currentPlayer) {
+    if (spaces[2] === currentPlayer && spaces[5] === currentPlayer) {
+      strategy.innerText = `${currentPlayer} wins on the right`;
+      return true;
+    }
+    if (spaces[6] === currentPlayer && spaces[7] === currentPlayer) {
+      strategy.innerText = `${currentPlayer} wins on the bottom`;
+      return true;
+    }
+  }
+  if (spaces[4] === currentPlayer) {
+    if (spaces[1] === currentPlayer && spaces[7] === currentPlayer) {
+      strategy.innerText = `${currentPlayer} wins vertically on middle`;
+      return true;
+    }
+    if (spaces[3] === currentPlayer && spaces[5] === currentPlayer) {
+      strategy.innerText = `${currentPlayer} wins horizontally on the middle`;
+      return true;
+    }
+    if (spaces[2] === currentPlayer && spaces[6] === currentPlayer) {
+      strategy.innerText = `${currentPlayer} wins diagonally`;
+      return true;
+    }
+  }
+};
+
+const playerDraw = () => {
+  let draw = 0;
+  spaces.forEach((space, i) => {
+    if (spaces[i] !== null) draw++;
+  });
+  if (draw === 9) {
+    text.innerText = `Draw`;
+    restart();
+  }
+};
+/*  We will add this restart function to the restart button also. The only downside is that it'll even after clicking the restart button, it'll execute after a second. This can be solved by using the setTimeout function individually to the restart function */
+const restart = () => {
+  setTimeout(() => {
+    spaces.forEach((space, i) => {
+      spaces[i] = null;
+    });
+    boxes.forEach((box) => {
+      box.innerText = '';
+    });
+    text.innerText = `Play`;
+    strategy.innerText = ``;
+  }, 1000);
+};
+restartBtn.addEventListener('click', restart);
+restart();
+drawBoard();
+
+</script>
+</body>
+
+</html>
